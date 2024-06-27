@@ -1,0 +1,9 @@
+[submodule "crun"]
+	path = crun
+	url = https://github.com/containers/crun
+[submodule "libkrun"]
+	path = libkrun
+	url = https://github.com/containers/libkrun
+[submodule "libkrunfw"]
+	path = libkrunfw
+	url = https://github.com/containers/libkrunfw
