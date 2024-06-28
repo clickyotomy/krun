@@ -50,7 +50,7 @@ function usage() {
 function install() {
     args "${@}"
 
-    local tar_base lib_abi
+    local tar_base lib_abi bin_ver
 
     check_bin "curl"
     check_bin "sha1sum"
@@ -67,8 +67,8 @@ function install() {
 
     tar_base="release-$(uname -m)"
 
-    curl -fsSLO "${REPO}/v${INSTALL_TAG}/${tar_base}.tar.gz"
-    curl -fsSLO "${REPO}/v${INSTALL_TAG}/${tar_base}.sha1"
+    curl -fsSLO "${REPO}/${INSTALL_TAG}/${tar_base}.tar.gz"
+    curl -fsSLO "${REPO}/${INSTALL_TAG}/${tar_base}.sha1"
 
     if ! sha1sum --check --status --strict "${tar_base}.sha1"; then
         echo "error: tarball checksum failed"
@@ -91,9 +91,10 @@ function install() {
 
     configure_ldconfig
 
-    chmod +x "${tar_base}/crun-${INSTALL_TAG}"
-    mv "${tar_base}/crun" "${INSTALL_DIR}/crun"
-    ln -sf "${INSTALL_DIR}/crun-${INSTALL_TAG}" "${INSTALL_DIR}/crun"
+    bin_ver="${INSTALL_TAG:1}"
+    chmod +x "${tar_base}/crun-${bin_ver}"
+    mv "${tar_base}/crun-${bin_ver}" "${INSTALL_DIR}/crun-${bin_ver}"
+    ln -sf "${INSTALL_DIR}/crun-${bin_ver}" "${INSTALL_DIR}/crun"
 
     popd >/dev/null || exit 1
 }
