@@ -7,11 +7,13 @@ PATH  := $(HOME)/.cargo/bin:$(PATH)
 CRUN_VERSION      = 1.15
 LIBKRUN_VERSION   = 1.9.3
 LIBKRUNFW_VERSION = 4.0.0
-CRUN_CONF_FLAGS  = --enable-embedded-yajl --with-libkrun
 
-BIN_CRUN      = crun/crun
-LIB_LIBKRUN   = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
-LIB_LIBKRUNFW = libkrunfw/libkrunfw.so.$(LIBKRUNFW_VERSION)
+CRUN_CONF_FLAGS = --enable-embedded-yajl --with-libkrun
+CRUN_BUILD_PATH = crun/crun
+
+BIN_CRUN       = $(CRUN_BUILD_PATH)-$(CRUN_VERSION)
+LIB_LIBKRUN    = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
+LIB_LIBKRUNFW  = libkrunfw/libkrunfw.so.$(LIBKRUNFW_VERSION)
 
 RELEASE_PFX = release-$(ARCH)
 RELEASE_TAR = $(RELEASE_PFX).tar.gz
@@ -41,15 +43,19 @@ default: $(RELEASE_PFX)
 $(RELEASE_PFX): crun
 	$(call msg,"RELEASE")
 	$(Q)mkdir -p $(RELEASE_PFX)
+
 	$(Q)cp $(BIN_CRUN) $(LIB_LIBKRUN) $(LIB_LIBKRUNFW) $(RELEASE_PFX)
 	$(Q)tar -czf $(RELEASE_TAR) $(RELEASE_PFX)
 	$(Q)sha1sum --binary $(RELEASE_TAR) >$(RELEASE_SUM)
+
 	$(Q)rm -rf $(RELEASE_PFX)
 
 crun: libkrun
 	$(call msg,"CRUN")
 	$(Q)pushd crun && ./autogen.sh && ./configure $(CRUN_CONF_FLAGS) && popd
 	$(Q)make -C crun
+	$(Q)mv $(CRUN_BUILD_PATH) $(BIN_CRUN)
+
 
 libkrun: libkrunfw
 	$(call msg,"LIBKRUN")
