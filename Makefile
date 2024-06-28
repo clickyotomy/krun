@@ -12,9 +12,9 @@ BIN_CRUN      = crun/crun
 LIB_LIBKRUN   = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
 LIB_LIBKRUNFW = libkrunfw/libkrunfw.so.$(LIBKRUNFW_VERSION)
 
-RELEASE_DIR = release
-RELEASE_TAR = release-$(CRUN_VERSION)-$(ARCH).tar.gz
-RELEASE_SUM = release-$(CRUN_VERSION)-$(ARCH).sha1
+RELEASE_PFX = release-$(ARCH)
+RELEASE_TAR = $(RELEASE_PFX).tar.gz
+RELEASE_SUM = $(RELEASE_PFX).sha1
 
 DEPS = autoconf automake bc bison build-essential curl elfutils flex \
        gcc git go-md2man libcap-dev libelf-dev libprotobuf-c-dev     \
@@ -40,11 +40,11 @@ endif
 default: $(RELEASE_DIR)
 
 $(RELEASE_DIR): crun
-	$(Q)mkdir -p $(RELEASE_DIR)
+	$(Q)mkdir -p $(RELEASE_PFX)
 	$(Q)cp $(BIN_CRUN) $(LIB_LIBKRUN) $(LIB_LIBKRUNFW) $(RELEASE_DIR)
 	$(Q)tar -czf $(RELEASE_TAR) $(RELEASE_DIR)
 	$(Q)sha1sum --binary $(RELEASE_TAR) >$(RELEASE_SUM)
-	$(Q)rm -rf $(RELEASE_DIR)
+	$(Q)rm -rf $(RELEASE_PFX)
 
 crun: libkrun
 	$(call msg,"CRUN")

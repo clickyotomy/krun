@@ -1,16 +1,13 @@
 #!/bin/bash
 
+set -euxo pipefail
 INSTALL_PATH=""
 INSTALL_TAG=""
 
-readonly REPO="https://github.com/clickyotomy/krun/releases/download/"
-
-readonly RELEASE_DIR="release"
-readonly TAR_GZIP="${RELEASE_DIR}.tar.gz"
-readonly TAR_SHA1="${RELEASE_DIR}.sum"
+readonly REPO="https://github.com/clickyotomy/krun/releases/download"
 
 readonly LIB_PATH="/usr/local/lib64"
-readonly LD_LIBS="/lib:/lib64:/usr/lib:/usr/lib64:/usr/local/lib:${LIB_PATH}"
+readonly LD_LIBS="${LIB_PATH}:/usr/local/lib:/usr/lib64:/usr/lib"
 
 
 function check_bin() {
@@ -32,7 +29,7 @@ function usage() {
 function install() {
     args "${@}"
 
-    local tmp_dir
+    local tmp_dir tar_base
 
     check_bin "curl"
     check_bin "sha1sum"
@@ -41,10 +38,12 @@ function install() {
     check_bin "ls"
     check_bin "readelf"
 
-    curl -fsSLO "${REPO}/${2}/$(uname -m)/${TAR_GZIP}"
-    curl -fsSLO "${REPO}/${2}/$(uname -m)/${TAR_SHA1}"
+    tar_base="release-$(uname -m)"
 
-    if ! sha1sum --check --status --strict "${TAR_SHA1}"; then
+    curl -fsSLO "${REPO}/${INSTALL_TAG}/${tar_base}.tar.gz"
+    curl -fsSLO "${REPO}/${INSTALL_TAG}/${tar_base}.sha1"
+
+    if ! sha1sum --check --status --strict "${tar_base}.sha1"; then
         echo "error: tarball checksum failed"
         exit 1
     fi
@@ -56,17 +55,18 @@ function install() {
 
     pushd "${tmp_dir}" || exit 1
 
-    tar -xzf "${TAR_GZIP}"
+    tar -xzf "${tar_base}.tar.gz"
     mkdir -p "${LIB_PATH}"
+    mkdir -p "${INSTALL_PATH}"
 
-    for lib in "${RELEASE_DIR}"/lib*; do
+    for lib in "${tar_base}"/lib*; do
         mv "${lib}" "${LIB_PATH}"
         ln -sf "${LIB_PATH}/${lib}" "${LIB_PATH}/$(abi_version "${lib}")"
     done
 
 	echo -e "#!/bin/sh\nLD_LIBRARY_PATH=\"${LD_LIBS}\" ${1}/crun \$@" >krun
     chmod +x crun krun
-    mv crun krun "${1}/"
+    mv crun krun "${INSTALL_PATH}/"
 
     popd || exit 1
 }
