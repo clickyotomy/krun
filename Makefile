@@ -21,8 +21,6 @@ DEPS = autoconf automake bc bison build-essential curl elfutils flex \
        libseccomp-dev libsystemd-dev libtool libyajl-dev make patch  \
        patchelf pkgconf python3 python3-pyelftools
 
-
-
 # For verbosity.
 ifeq ($(V),1)
 Q =
