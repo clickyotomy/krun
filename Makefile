@@ -7,6 +7,7 @@ PATH  := $(HOME)/.cargo/bin:$(PATH)
 CRUN_VERSION      = 1.15
 LIBKRUN_VERSION   = 1.9.3
 LIBKRUNFW_VERSION = 4.0.0
+CRUN_CONF_FLAGS  = --enable-embedded-yajl --with-libkrun
 
 BIN_CRUN      = crun/crun
 LIB_LIBKRUN   = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
@@ -35,18 +36,19 @@ msg = @printf '  %-8s %s%s\n' "$(1)" "$(2)" "$(if $(3), $(3))";
 MAKEFLAGS += --no-print-directory
 endif
 
-default: $(RELEASE_DIR)
+default: $(RELEASE_PFX)
 
-$(RELEASE_DIR): crun
+$(RELEASE_PFX): crun
+	$(call msg,"RELEASE")
 	$(Q)mkdir -p $(RELEASE_PFX)
-	$(Q)cp $(BIN_CRUN) $(LIB_LIBKRUN) $(LIB_LIBKRUNFW) $(RELEASE_DIR)
-	$(Q)tar -czf $(RELEASE_TAR) $(RELEASE_DIR)
+	$(Q)cp $(BIN_CRUN) $(LIB_LIBKRUN) $(LIB_LIBKRUNFW) $(RELEASE_PFX)
+	$(Q)tar -czf $(RELEASE_TAR) $(RELEASE_PFX)
 	$(Q)sha1sum --binary $(RELEASE_TAR) >$(RELEASE_SUM)
 	$(Q)rm -rf $(RELEASE_PFX)
 
 crun: libkrun
 	$(call msg,"CRUN")
-	$(Q)pushd crun && ./autogen.sh && ./configure --with-libkrun && popd
+	$(Q)pushd crun && ./autogen.sh && ./configure $(CRUN_CONF_FLAGS) && popd
 	$(Q)make -C crun
 
 libkrun: libkrunfw

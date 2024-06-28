@@ -1,13 +1,12 @@
 #!/bin/bash
 
-set -euxo pipefail
-INSTALL_PATH=""
+INSTALL_DIR=""
 INSTALL_TAG=""
+TEMP_DIR=""
 
 readonly REPO="https://github.com/clickyotomy/krun/releases/download"
-
 readonly LIB_PATH="/usr/local/lib64"
-readonly LD_LIBS="${LIB_PATH}:/usr/local/lib:/usr/lib64:/usr/lib"
+readonly CRUN_LD_SO_CONF="/etc/ld.so.conf.d/crun.conf"
 
 
 function check_bin() {
@@ -29,7 +28,7 @@ function usage() {
 function install() {
     args "${@}"
 
-    local tmp_dir tar_base
+    local tar_base lib_abi
 
     check_bin "curl"
     check_bin "sha1sum"
@@ -48,27 +47,29 @@ function install() {
         exit 1
     fi
 
-    tmp_dir="$(mktemp)"
-    trap 'rm -rf -- "${tmp_dir}"' EXIT
+    TEMP_DIR="$(mktemp -d)"
+    trap 'rm -rf -- "${TEMP_DIR}"' EXIT
 
     mkdir -p "${LIB_PATH}"
+    mkdir -p "${INSTALL_DIR}"
 
-    pushd "${tmp_dir}" || exit 1
+    tar -xzf "${tar_base}.tar.gz" -C "${TEMP_DIR}"
 
-    tar -xzf "${tar_base}.tar.gz"
-    mkdir -p "${LIB_PATH}"
-    mkdir -p "${INSTALL_PATH}"
+    pushd "${TEMP_DIR}" >/dev/null || exit 1
 
-    for lib in "${tar_base}"/lib*; do
+    for lib in "${tar_base}/lib"*; do
+        lib_rel=$(basename "${lib}")
+        lib_abi="$(abi_version "${lib}")"
         mv "${lib}" "${LIB_PATH}"
-        ln -sf "${LIB_PATH}/${lib}" "${LIB_PATH}/$(abi_version "${lib}")"
+        ln -sf "${LIB_PATH}/${lib_rel}" "${LIB_PATH}/${lib_abi}"
+        chmod -w "${LIB_PATH}/${lib_rel}" "${LIB_PATH}/${lib_abi}"
     done
 
-	echo -e "#!/bin/sh\nLD_LIBRARY_PATH=\"${LD_LIBS}\" ${1}/crun \$@" >krun
-    chmod +x crun krun
-    mv crun krun "${INSTALL_PATH}/"
+    chmod +x "${tar_base}/crun"
+    mv "${tar_base}/crun" "${INSTALL_DIR}/"
 
-    popd || exit 1
+    echo "${LIB_PATH}" >"${CRUN_LD_SO_CONF}"
+    popd >/dev/null || exit 1
 }
 
 function args() {
@@ -77,7 +78,7 @@ function args() {
     while getopts ":p:t:h" OPT; do
         case "${OPT}" in
         p)
-            INSTALL_PATH="${OPTARG}"
+            INSTALL_DIR="${OPTARG}"
             ;;
         t)
             INSTALL_TAG="${OPTARG}"
@@ -92,7 +93,7 @@ function args() {
     done
     shift $((OPTIND - 1))
 
-    if [ -z "${INSTALL_PATH}" ] || [ -z "${INSTALL_TAG}" ]; then
+    if [ -z "${INSTALL_DIR}" ] || [ -z "${INSTALL_TAG}" ]; then
         usage
     fi
 }
