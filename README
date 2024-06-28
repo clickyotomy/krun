@@ -1,0 +1,10 @@
+krun
+----
+
+This repository is used for building and releasing tarballs for
+"crun" (with libkrun enabled). It includes submodules for "crun",
+"libkrun", and "libkrunfw".
+
+Additionally, installation script ("install.sh") is provided to
+download and install from the release tarballs.
+

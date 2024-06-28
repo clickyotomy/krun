@@ -1,3 +1,15 @@
+# Makefile to build and release "crun", "libkrun", and "libkrunfw"
+#
+# Usage:
+#   make        - Build and release the components.
+#   make clean  - Clean the build directories.
+#
+# Verbosity:
+#   Set V=1 for verbose output.
+#
+# Dependencies:
+# 	"apt" and "curl" should be installed.
+
 SHELL = /bin/bash
 APT   = $(shell command -v apt-get)
 CURL  = $(shell command -v curl)
