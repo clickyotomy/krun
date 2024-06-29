@@ -13,6 +13,9 @@
 SHELL = /bin/bash
 APT   = $(shell command -v apt-get)
 CURL  = $(shell command -v curl)
+TAR   = $(shell command -v tar)
+MAKE  = $(shell command -v make)
+
 ARCH  = $(shell uname -m)
 PATH  := $(HOME)/.cargo/bin:$(PATH)
 
@@ -31,10 +34,16 @@ RELEASE_PFX = release-$(ARCH)
 RELEASE_TAR = $(RELEASE_PFX).tar.gz
 RELEASE_SUM = $(RELEASE_PFX).sha1
 
+PATCHELF_VERSION = 0.18.0
+PATCHELF_BIN     = patchelf
+PATCHELF_REPO    = https://github.com/NixOS/patchelf
+PATCHELF_REL     = $(PATCHELF_REPO)/releases/download/$(PATCHELF_VERSION)
+PATCHELF_TGZ     = $(PATCHELF_BIN)-$(PATCHELF_REL)-$(ARCH).tar.gz
+
 DEPS = autoconf automake bc bison build-essential curl elfutils flex \
        gcc git go-md2man libcap-dev libelf-dev libprotobuf-c-dev     \
        libseccomp-dev libsystemd-dev libtool libyajl-dev make patch  \
-       patchelf=0.14.3-1 pkgconf python3 python3-pyelftools
+       pkgconf python3 python3-pyelftools
 
 # For verbosity.
 ifeq ($(V),1)
@@ -57,7 +66,7 @@ $(RELEASE_PFX): crun
 	$(Q)mkdir -p $(RELEASE_PFX)
 
 	$(Q)cp $(BIN_CRUN) $(LIB_LIBKRUN) $(LIB_LIBKRUNFW) $(RELEASE_PFX)
-	$(Q)tar -czf $(RELEASE_TAR) $(RELEASE_PFX)
+	$(Q)$(TAR) -czf $(RELEASE_TAR) $(RELEASE_PFX)
 	$(Q)sha1sum --binary $(RELEASE_TAR) >$(RELEASE_SUM)
 
 	$(Q)rm -rf $(RELEASE_PFX)
@@ -65,33 +74,33 @@ $(RELEASE_PFX): crun
 crun: libkrun
 	$(call msg,"CRUN")
 	$(Q)pushd crun && ./autogen.sh && ./configure $(CRUN_CONF_FLAGS) && popd
-	$(Q)make -C crun
+	$(Q)$(MAKE) -C crun
 	$(Q)mv $(CRUN_BUILD_PATH) $(BIN_CRUN)
 
 
 libkrun: libkrunfw
 	$(call msg,"LIBKRUN")
-	$(Q)make BLK=1 NET=1 TIMESYNC=1 -C libkrun
-	$(Q)make -C libkrun install
+	$(Q)$(MAKE) BLK=1 NET=1 TIMESYNC=1 -C libkrun
+	$(Q)$(MAKE) -C libkrun install
 
 libkrunfw: deps
 	$(call msg,"LIBKRUNFW")
-	$(Q)make -C libkrunfw
-	$(Q)make -C libkrunfw install
+	$(Q)$(MAKE) -C libkrunfw
+	$(Q)$(MAKE) -C libkrunfw install
 
-deps: rust
+deps: rust patchelf
 	$(call msg,"DEPS")
 	$(Q)$(APT) $(APT_FLAGS) update $(APT_QUIET)
 	$(Q)$(APT) $(APT_FLAGS) install $(DEPS) $(APT_QUIET)
 
-rust:
+rust: patchelf
 	$(call msg,"RUST")
 	$(Q)$(CURL) -fSsL https://sh.rustup.rs | $(SHELL) -s -- -y &>/dev/null
 
 clean:
-	$(Q)make -C crun clean
-	$(Q)make -C libkrun clean
-	$(Q)make -C libkrunfw clean
+	$(Q)$(MAKE) -C crun clean
+	$(Q)$(MAKE) -C libkrun clean
+	$(Q)$(MAKE) -C libkrunfw clean
 
 .PHONY: default crun libkrun libkrunfw clean
 .DELETE_ON_ERROR:
