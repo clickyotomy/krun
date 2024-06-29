@@ -34,7 +34,7 @@ RELEASE_SUM = $(RELEASE_PFX).sha1
 DEPS = autoconf automake bc bison build-essential curl elfutils flex \
        gcc git go-md2man libcap-dev libelf-dev libprotobuf-c-dev     \
        libseccomp-dev libsystemd-dev libtool libyajl-dev make patch  \
-       patchelf=0.18.0-1.1build1 pkgconf python3 python3-pyelftools
+       patchelf=0.14.3-1 pkgconf python3 python3-pyelftools
 
 # For verbosity.
 ifeq ($(V),1)
