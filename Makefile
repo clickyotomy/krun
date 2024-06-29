@@ -16,8 +16,9 @@ CURL  = $(shell command -v curl)
 TAR   = $(shell command -v tar)
 MAKE  = $(shell command -v make)
 
-ARCH  = $(shell uname -m)
-PATH  := $(HOME)/.cargo/bin:$(PATH)
+ARCH    = $(shell uname -m)
+PATH    := $(HOME)/.cargo/bin:$(PATH)
+TAR_REL =  --strip-components=2 -xzvf
 
 CRUN_VERSION      = 1.15
 LIBKRUN_VERSION   = 1.9.3
@@ -34,16 +35,16 @@ RELEASE_PFX = release-$(ARCH)
 RELEASE_TAR = $(RELEASE_PFX).tar.gz
 RELEASE_SUM = $(RELEASE_PFX).sha1
 
-PATCHELF_VERSION = 0.18.0
-PATCHELF_BIN     = patchelf
-PATCHELF_REPO    = https://github.com/NixOS/patchelf
-PATCHELF_REL     = $(PATCHELF_REPO)/releases/download/$(PATCHELF_VERSION)
-PATCHELF_TGZ     = $(PATCHELF_BIN)-$(PATCHELF_REL)-$(ARCH).tar.gz
+PATCHELF_VERSION   = 0.18.0
+PATCHELF_BIN       = patchelf
+PATCHELF_REL       = https://github.com/NixOS/$(PATCHELF_BIN)/releases/download
+PATCHELF_BASE      = $(PATCHELF_VERSION)/$(PATCHELF_BIN)-$(PATCHELF_VERSION)
 
 DEPS = autoconf automake bc bison build-essential curl elfutils flex \
        gcc git go-md2man libcap-dev libelf-dev libprotobuf-c-dev     \
        libseccomp-dev libsystemd-dev libtool libyajl-dev make patch  \
        pkgconf python3 python3-pyelftools
+
 
 # For verbosity.
 ifeq ($(V),1)
@@ -99,8 +100,8 @@ rust:
 
 patchelf:
 	$(call msg,"PATCHELF")
-	$(Q)$(CURL) -fsSLO "$(PATCHELF_REL)/$(PATCHELF_TGZ)"
-	$(Q)$(TAR) --strip-components=2 -xzvf $(PATCHELF_TGZ) ./bin/$(PATCHELF_BIN)
+	$(Q)$(CURL) -fsSLO "$(PATCHELF_REL)/$(PATCHELF_BASE)-$(ARCH).tar.gz"
+	$(Q)$(TAR) $(TAR_REL) $(PATCHELF_TGZ)-$(ARCH).tar.gz ./bin/$(PATCHELF_BIN)
 	$(Q)mv $(PATCHELF_BIN) /usr/local/bin
 
 clean:
