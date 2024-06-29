@@ -93,9 +93,15 @@ deps: rust patchelf
 	$(Q)$(APT) $(APT_FLAGS) update $(APT_QUIET)
 	$(Q)$(APT) $(APT_FLAGS) install $(DEPS) $(APT_QUIET)
 
-rust: patchelf
+rust:
 	$(call msg,"RUST")
 	$(Q)$(CURL) -fSsL https://sh.rustup.rs | $(SHELL) -s -- -y &>/dev/null
+
+patchelf:
+	$(call msg,"PATCHELF")
+	$(Q)$(CURL) -fsSLO "$(PATCHELF_REL)/$(PATCHELF_TGZ)"
+	$(Q)$(TAR) --strip-components=2 -xzvf $(PATCHELF_TGZ) ./bin/$(PATCHELF_BIN)
+	$(Q)mv $(PATCHELF_BIN) /usr/local/bin
 
 clean:
 	$(Q)$(MAKE) -C crun clean
