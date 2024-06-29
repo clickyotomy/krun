@@ -101,7 +101,7 @@ rust:
 patchelf:
 	$(call msg,"PATCHELF")
 	$(Q)$(CURL) -fsSLO "$(PATCHELF_REL)/$(PATCHELF_BASE)-$(ARCH).tar.gz"
-	$(Q)$(TAR) $(TAR_REL) $(PATCHELF_TGZ)-$(ARCH).tar.gz ./bin/$(PATCHELF_BIN)
+	$(Q)$(TAR) $(TAR_REL) $(PATCHELF_BASE)-$(ARCH).tar.gz ./bin/$(PATCHELF_BIN)
 	$(Q)mv $(PATCHELF_BIN) /usr/local/bin
 
 clean:
