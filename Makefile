@@ -10,11 +10,12 @@
 # Dependencies:
 # 	"apt" and "curl" should be installed.
 
-SHELL = /bin/bash
-APT   = $(shell command -v apt-get)
-CURL  = $(shell command -v curl)
-TAR   = $(shell command -v tar)
-MAKE  = $(shell command -v make)
+SHELL    = /bin/bash
+APT      = $(shell command -v apt-get)
+CURL     = $(shell command -v curl)
+TAR      = $(shell command -v tar)
+MAKE     = $(shell command -v make)
+LDCONFIG = $(shell command -v ldconfig)
 
 ARCH    = $(shell uname -m)
 PATH    := $(HOME)/.cargo/bin:$(PATH)
@@ -25,6 +26,7 @@ LIBKRUNFW_VERSION = 4.0.0
 
 CRUN_CONF_FLAGS = --enable-embedded-yajl --with-libkrun
 CRUN_BUILD_PATH = crun/crun
+CRUN_LD_CONFIG = /etc/ld.so.conf.d/crun.conf
 
 BIN_CRUN       = $(CRUN_BUILD_PATH)-$(CRUN_VERSION)
 LIB_LIBKRUN    = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
@@ -76,8 +78,10 @@ crun: libkrun
 	$(call msg,"CRUN")
 	$(Q)pushd crun && ./autogen.sh && ./configure $(CRUN_CONF_FLAGS) && popd
 	$(Q)$(MAKE) -C crun
-	$(Q)mv $(CRUN_BUILD_PATH) $(BIN_CRUN)
+	$(Q)$(MAKE) -C crun install
 
+	$(Q)echo "/usr/local/lib64" >$(CRUN_LD_CONFIG)
+	$(Q)$(LDCONFIG)
 
 libkrun: libkrunfw
 	$(call msg,"LIBKRUN")
