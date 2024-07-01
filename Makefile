@@ -62,7 +62,7 @@ msg = @printf '  %-8s %s%s\n' "$(1)" "$(2)" "$(if $(3), $(3))";
 MAKEFLAGS += --no-print-directory
 endif
 
-default: $(RELEASE_PFX)
+default: crun
 
 $(RELEASE_PFX): crun
 	$(call msg,"RELEASE")
@@ -85,7 +85,7 @@ crun: libkrun
 
 libkrun: libkrunfw
 	$(call msg,"LIBKRUN")
-	$(Q)$(MAKE) -C libkrun
+	$(Q)$(MAKE) BLK=1 NET=1 TIMESYNC=1 -C libkrun
 	$(Q)$(MAKE) -C libkrun install
 
 libkrunfw: deps
