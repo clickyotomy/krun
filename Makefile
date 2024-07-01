@@ -81,7 +81,7 @@ crun: libkrun
 
 libkrun: libkrunfw
 	$(call msg,"LIBKRUN")
-	$(Q)$(MAKE) BLK=1 NET=1 TIMESYNC=1 -C libkrun
+	$(Q)$(MAKE) -C libkrun
 	$(Q)$(MAKE) -C libkrun install
 
 libkrunfw: deps
