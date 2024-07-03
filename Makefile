@@ -10,43 +10,35 @@
 # Dependencies:
 # 	"apt" and "curl" should be installed.
 
-SHELL    = /bin/bash
-APT      = $(shell command -v apt-get)
-CURL     = $(shell command -v curl)
-TAR      = $(shell command -v tar)
-MAKE     = $(shell command -v make)
-LDCONFIG = $(shell command -v ldconfig)
-
-ARCH    = $(shell uname -m)
-PATH    := $(HOME)/.cargo/bin:$(PATH)
-
-CRUN_VERSION      = 1.15
-LIBKRUN_VERSION   = 1.9.3
-LIBKRUNFW_VERSION = 4.0.0
-
-CRUN_CONF_FLAGS = --enable-embedded-yajl --with-libkrun
-CRUN_BUILD_PATH = crun/crun
-CRUN_LD_CONFIG = /etc/ld.so.conf.d/crun.conf
-
-BIN_CRUN       = $(CRUN_BUILD_PATH)-$(CRUN_VERSION)
-LIB_LIBKRUN    = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
-LIB_LIBKRUNFW  = libkrunfw/libkrunfw.so.$(LIBKRUNFW_VERSION)
-
-RELEASE_PFX = release-$(ARCH)
-RELEASE_TAR = $(RELEASE_PFX).tar.gz
-RELEASE_SUM = $(RELEASE_PFX).sha1
-
+SHELL              = /bin/bash
+APT                = $(shell command -v apt-get)
+CURL               = $(shell command -v curl)
+TAR                = $(shell command -v tar)
+MAKE               = $(shell command -v make)
+LDCONFIG           = $(shell command -v ldconfig)
+ARCH               = $(shell uname -m)
+PATH               := $(HOME)/.cargo/bin:$(PATH)
+CRUN_VERSION       = 1.15
+LIBKRUN_VERSION    = 1.9.3
+LIBKRUNFW_VERSION  = 4.0.0
+CRUN_CONF_FLAGS    = --enable-embedded-yajl --with-libkrun
+CRUN_BUILD_PATH    = crun/crun
+CRUN_LD_CONFIG     = /etc/ld.so.conf.d/crun.conf
+BIN_CRUN           = $(CRUN_BUILD_PATH)-$(CRUN_VERSION)
+LIB_LIBKRUN        = libkrun/target/release/libkrun.so.$(LIBKRUN_VERSION)
+LIB_LIBKRUNFW      = libkrunfw/libkrunfw.so.$(LIBKRUNFW_VERSION)
+RELEASE_PFX        = release-$(ARCH)
+RELEASE_TAR        = $(RELEASE_PFX).tar.gz
+RELEASE_SUM        = $(RELEASE_PFX).sha1
 PATCHELF_VERSION   = 0.18.0
 PATCHELF_BIN       = patchelf
 PATCHELF_REPO      = https://github.com/NixOS/$(PATCHELF_BIN)
 PATCHELF_REL       = $(PATCHELF_REPO)/releases/download/$(PATCHELF_VERSION)
 PATCHELF_BASE      = $(PATCHELF_BIN)-$(PATCHELF_VERSION)-$(ARCH).tar.gz
-
-DEPS = autoconf automake bc bison build-essential curl elfutils flex \
-       gcc git go-md2man libcap-dev libelf-dev libprotobuf-c-dev     \
-       libseccomp-dev libsystemd-dev libtool libyajl-dev make patch  \
-       pkgconf python3 python3-pyelftools
-
+DEPS               = autoconf automake bc bison build-essential curl         \
+					 elfutils flex gcc git go-md2man libcap-dev libelf-dev   \
+					 libprotobuf-c-dev libseccomp-dev libsystemd-dev libtool \
+					 libyajl-dev make patch pkgconf python3 python3-pyelftools
 
 # For verbosity.
 ifeq ($(V),1)
