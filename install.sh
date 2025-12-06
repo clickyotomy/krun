@@ -33,6 +33,7 @@ function abi_version() {
     readelf -d "${1}"  | grep 'SONAME' | awk -F'[][]' '{print $2}'
 }
 
+# Check if a binary exists.
 function check_bin() {
     if ! command -v "${1}" &>/dev/null; then
         echo "error: command not found: ${1}"
@@ -95,6 +96,7 @@ function install() {
     chmod +x "${tar_base}/crun-${bin_ver}"
     mv "${tar_base}/crun-${bin_ver}" "${INSTALL_DIR}/crun-${bin_ver}"
     ln -sf "${INSTALL_DIR}/crun-${bin_ver}" "${INSTALL_DIR}/crun"
+    ln -sf "${INSTALL_DIR}/crun-${bin_ver}" "${INSTALL_DIR}/krun"
 
     popd >/dev/null || exit 1
 }
